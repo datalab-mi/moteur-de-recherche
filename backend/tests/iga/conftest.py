@@ -1,6 +1,7 @@
 import os
-
 import pytest
+
+from elasticsearch import Elasticsearch
 
 from application import create_app
 
@@ -21,3 +22,41 @@ def client(app):
 @pytest.fixture
 def search_data():
     return dict(index_name=NOM_INDEX, value='travail illegal')
+
+@pytest.fixture
+def es():
+    return Elasticsearch([{'host': 'elasticsearch', 'port': '9200'}])
+
+@pytest.fixture
+def dummy_index():
+    return {
+          "settings": {
+            "analysis": {
+              "filter" : {
+                "my_synonym": {
+                  "type": "synonym",
+                  "synonyms": [
+                    "chat => lion"
+                      ]
+                  }
+            },
+              "analyzer": {
+                "my_analyzer": {
+                  "tokenizer": "standard",
+                  "filter": [
+                    "my_synonym"
+                    ]
+                  }
+                }
+            }
+          },
+          "mappings":{
+              "properties": {
+                 "content": {
+                    "type": "text",
+                    "analyzer" : "my_analyzer",
+                    "search_analyzer" : "my_analyzer"
+                }
+              }
+            }
+        }

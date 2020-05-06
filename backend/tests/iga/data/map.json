@@ -1,87 +1,89 @@
 {
-
   "settings": {
-    "index" : {
-      "highlight":{
+    "analysis": {
+      "char_filter": {
+        "quotes": {
+          "type": "mapping",
+          "mappings": [
+            "\\u0091=>\\u0027",
+            "\\u0092=>\\u0027",
+            "\\u2018=>\\u0027",
+            "\\u2019=>\\u0027",
+            "\\u201B=>\\u0027"
+          ]
+        },
+        "new_line": {
+          "type": "mapping",
+          "mappings": ["-\\u0020=>"]
+        }
       },
-      "analysis": {
-        "char_filter":{
-          "my_char_filter":{
-            "type":"mapping"
-          }
-        },
-        "filter": {
-          "french_elision": {
-            "type": "elision",
-            "articles_case": true,
-            "articles": ["l", "m", "t", "qu", "n", "s", "j", "d", "c", "jusqu", "quoiqu", "lorsqu", "puisqu"]
-          },
-          "french_synonym": {
-            "type": "synonym",
-            "ignore_case": true,
-            "expand": true,
-            "synonyms": [
-              "salade, laitue",
-              "mayo, mayonnaise",
-              "grille, toaste"
+      "filter" : {
+        "french_elision": {
+          "type":         "elision",
+          "articles_case": true,
+          "articles": [
+              "l", "m", "t", "qu", "n", "s",
+              "j", "d", "c", "jusqu", "quoiqu",
+              "lorsqu", "puisqu"
             ]
-          },
-          "french_stemmer": {
-            "type": "stemmer",
-            "language": "light_french"
-          },
-          "french_stop": {
-            "type":       "stop",
-            "stopwords":  "_french_"
-          },
-          "glossary" : {
-            "type" : "synonym"
-          }
         },
-        "analyzer": {
-          "auteur_analyzer" : {
-            "tokenizer" : "standard" ,
-            "filter" : "lowercase"},
-          "custom_french": {
-            "char_filter":[
-              "my_char_filter"
-            ],
-            "tokenizer": "icu_tokenizer",
-            "filter": [
-              "french_elision",
-              "glossary",
-              "icu_folding",
-              "french_synonym",
-              "french_stop",
-              "french_stemmer"
+        "french_stop": {
+          "type":       "stop",
+          "stopwords":  "_french_"
+        },
+        "more_stop": {
+          "type": "stop",
+          "ignore_case": true,
+          "stopwords": [ "a", "à"]
+        },
+        "minimal_stemmer": {
+          "type" : "stemmer",
+          "name" : "light_french"
+        },
+        "my_multiplexer": {
+          "type" : "multiplexer",
+          "filters" : ["acronym"]
+        },
+        "acronym": {
+          "type": "synonym"
+        },
+        "expression": {
+          "type":   "synonym"
+        },
+        "synonym": {
+          "type": "synonym"
+        },
+        "remove_artifact" : {
+         "type": "pattern_replace",
+         "pattern": "_(.*)_",
+         "replacement" : "$1"
+       }
+      },
+      "analyzer": {
+        "my_analyzer": {
+          "char_filter": [ "quotes","new_line" ],
+          "tokenizer": "icu_tokenizer",
+          "filter": [
+            "lowercase",
+            "french_elision",
+            "icu_folding",
+            "french_stop",
+            "more_stop",
+            "minimal_stemmer",
+            "synonym",
+            "remove_artifact"
             ]
-          }
-
+        }
       }
-  }
-  }
-
-},
-    "mappings":{
-    "properties": {
-      "content": {
-        "type": "text",
-        "analyzer" : "custom_french",
-          "search_analyzer" : "custom_french"
-      },
-      "title": {
-        "type": "text",
-        "analyzer" : "custom_french",
-          "search_analyzer" : "custom_french"
-      },
-      "date": {
-        "type" : "date" ,
-        "format" : "yyyy-MM-dd"
-      },
-    "author" : {
-      "type" : "text",
-        "analyzer" : "auteur_analyzer"
     }
+  },
+  "mappings":{
+    "properties": {
+       "content": {
+          "type": "text",
+          "analyzer" : "my_analyzer",
+            "search_analyzer" : "my_analyzer"
+      }
     }
   }
 }

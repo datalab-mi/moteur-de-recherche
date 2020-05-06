@@ -235,14 +235,14 @@ def create_index(nom_index,
         # Copy glossary and experssion file to elastic search mount volume
         copyfile(os.path.join(user_data, glossary_file),
                 os.path.join(es_data, glossary_file))
-        map['settings']["index"]["analysis"]["filter"]["glossary"].update(
+        map['settings']['index']["analysis"]["filter"]["glossary"].update(
                 {"synonyms_path" : os.path.join(es_data, glossary_file)})
 
     if expression_file:
         print('Use expresion file %s'%expression_file)
         copyfile(os.path.join(user_data, expression_file),
                 os.path.join(es_data, expression_file))
-        map["settings"]["index"]["analysis"]['char_filter']["my_char_filter"].update(
+        map["settings"]['index']["analysis"]['char_filter']["my_char_filter"].update(
                 {'mappings_path' : os.path.join(es_data, expression_file)})
 
     print(map)
@@ -254,7 +254,7 @@ def create_index(nom_index,
     es.indices.create(index = nom_index, body=map)
 
 
-def inject_documents(nom_index, user_data, pdf_path, json_path,
+def inject_documents(nom_index, user_data, pdf_path=None, json_path=None,
             metada_file=None):
 
     no_match = 0
@@ -300,6 +300,11 @@ def inject_documents(nom_index, user_data, pdf_path, json_path,
                 print(20*'*')
 
     print("There is %s documents without metadata match"%no_match)
+
+def refresh(nom_index):
+    es.indices.refresh(index = nom_index)
+    return
+
 
 if __name__ == '__main__':
 

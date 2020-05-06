@@ -15,26 +15,25 @@ import PdfViewer from './PdfViewer'
 
 const { ResultListWrapper } = ReactiveList;
 
-
-function ServerQuery(value, props){
+function serverQuery(value) {
+  console.log('Call serverQuery')
   console.log(value)
-  console.log(props)
 
-  fetch("http://localhost:5000/common/build_query",{
-    meth  od: "POST",
+  fetch("http://localhost/api/common/build_query",{
+    method: "POST",
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin':'*',
-      'Access-Control-Allow-Headers': 'Content-Type'
     },
     body: JSON.stringify({
       index_name: 'iga',
-      value: 'test'
+      value: value
     })
   }).then(function(response) {
       if(response.ok) {
-        console.log(response);
+        response.json().then(function(data) {
+          return {query: data[0].query}
+          });
       } else {
         console.log('Mauvaise réponse du réseau');
         console.log(response);
@@ -44,14 +43,6 @@ function ServerQuery(value, props){
     .catch(function(error) {
     console.log('Il y a eu un problème avec l\'opération fetch: ' + error.message);
   });
-
-  return {
-    query: {
-        match: {
-            content: value
-        }
-    }
-  }
 }
 
 class App extends React.Component {
@@ -101,20 +92,31 @@ class App extends React.Component {
 
       />
 
-        {/*
+        {
           <DataSearch
           componentId="SearchFilterServer"
           placeholder="Custom search for documents on server..."
-          customQuery={ServerQuery}
+          customQuery={
+              function(value, props) {
+                if (value==undefined || 0 === value.length){
+                  console.log('no value')
+                } else {
+                  const query = serverQuery(value)
+                  console.log('Response is')
+                  console.log(query)
+                  return query
+
+              }
+            }
+          }
           />
-        */}
+        }
 
 
 
         <StateProvider
         includeKeys={['query']}
         render={({ searchState }) => {
-            console.log(JSON.stringify(searchState.SearchResult))
             this.setState({dsl : JSON.stringify(searchState.SearchResult, undefined, 2)})
             return null
         }}

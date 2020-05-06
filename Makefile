@@ -19,7 +19,7 @@ export ES_INDEX = deces
 export ES_DATA = ${APP_PATH}/esdata
 export ES_NODES = 1
 export ES_MEM = 1024m
-export ES_VERSION = 7.4.0
+export ES_VERSION = 7.6.0
 
 export API_PATH = deces
 export ES_PROXY_PATH = /${API_PATH}/api/v0/search
@@ -92,12 +92,14 @@ elasticsearch: network
 		i=`expr $$i - 1`; \
 	done;\
 	true)
-	${DC} -f ${DC_FILE}-elasticsearch-huge.yml up -d
+	${DC} -f ${DC_FILE}-elasticsearch-huge.yml up --build -d
 
 elasticsearch-stop:
 	@echo docker-compose down elasticsearch
 	@if [ -f "${DC_FILE}-elasticsearch-huge.yml" ]; then ${DC} -f ${DC_FILE}-elasticsearch-huge.yml down;fi
 
+elasticsearch-exec:
+		$(DC) -f ${DC_FILE}-elasticsearch.yml exec elasticsearch bash
 # kibana
 
 kibana: network

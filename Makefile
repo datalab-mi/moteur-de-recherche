@@ -89,7 +89,7 @@ elasticsearch: network
 		do \
 			if [ ! -d ${ES_DATA}/node$$i ]; then (echo ${ES_DATA}/node$$i && sudo mkdir -p ${ES_DATA}/node$$i && sudo chmod g+rw ${ES_DATA}/node$$i/. && sudo chgrp 1000 ${ES_DATA}/node$$i/.); fi; \
 		cat ${DC_FILE}-elasticsearch-node.yml | sed "s/%N/$$i/g;s/%MM/${ES_MEM}/g;s/%M/${ES_MEM}/g" >> ${DC_FILE}-elasticsearch-huge.yml; \
-		i=`expr $$i - 1`; \
+		i=`expr $$i - 1`; \ docker.elastic.co/
 	done;\
 	true)
 	${DC} -f ${DC_FILE}-elasticsearch-huge.yml up --build -d

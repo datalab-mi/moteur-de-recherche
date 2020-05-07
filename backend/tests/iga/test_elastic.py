@@ -7,13 +7,13 @@ import elasticsearch
 from elasticsearch import Elasticsearch
 from shutil import copyfile
 
-from tools.elastic2 import create_index, inject_documents, search
+from tools.elastic import create_index, inject_documents, search
 from tools.converter import pdf2json
 
 import pytest
 #import pdb; pdb.set_trace()
 
-env_path = '/app/tests/iga2/.env-iga'
+env_path = '/app/tests/iga/.env-iga'
 load_dotenv(dotenv_path=env_path)
 
 NOM_INDEX = os.getenv('NOM_INDEX')
@@ -30,7 +30,7 @@ JSON_DIR = os.getenv('JSON_DIR')
 
 os.makedirs(ES_DATA, exist_ok=True)
 
-es = Elasticsearch([{'host': 'browser_elasticsearch', 'port': '9200'}])
+es = Elasticsearch([{'host': 'elasticsearch', 'port': '9200'}])
 
 doc_guyane_eau = "les-bonnes-feuilles-IGA-eau-potable-en-guadeloupe.pdf"
 
@@ -92,7 +92,7 @@ def test_search():
     assert length_req == 1, length_req
     assert not bande
 
-
+"""
 def test_reindex(client, app, es, dummy_index):
     # test reindex after a change of synonym data
     # First test : change synonym analyser in index
@@ -107,12 +107,11 @@ def test_reindex(client, app, es, dummy_index):
     es.index(index = 'dummy_index', body=data , id = name_document)
 
     # change index setting
-    settings = dummy_index['settings'].copy()
-    settings['analysis']['filter']['my_synonym']['synonyms'] += ["chien => loup"]
+    dummy_index['settings']['analysis']['filter']['my_synonym']['synonyms'] += ["chien => loup"]
 
-    es.indices.close(index='dummy_index')
-    es.indices.put_settings(index='dummy_index',body=settings)
-    es.indices.open(index='dummy_index')
+    #es.indices.close(index='dummy_index')
+    #es.indices.put_settings(index='dummy_index',body=settings)
+    #es.indices.open(index='dummy_index')
 
     es.indices.delete(index='dummy_index', ignore=[400, 404])
     # create index
@@ -127,7 +126,7 @@ def test_reindex(client, app, es, dummy_index):
     request = {'query' : {'match_phrase': {'content': 'loup'}}}
     res = es.search(index='dummy_index', body=request)
     assert  res['hits']['hits'][0]['_id'] == 'babar', res
-
+"""
 
 if __name__ == '__main__':
     #test_create_index()

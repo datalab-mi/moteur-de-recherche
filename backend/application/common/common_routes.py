@@ -119,7 +119,7 @@ def search():
     USER_DATA = os.getenv('USER_DATA')
 
     glossary_file = Path(USER_DATA) / GLOSSARY_FILE
-    expression_file = Path(USER_DATA) / 'analysed_expression.txt'
+    expression_file = Path(USER_DATA) / EXPRESSION_FILE
 
     res = elastic_search(user_entry,
                 index_name,

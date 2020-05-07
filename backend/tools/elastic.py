@@ -48,7 +48,6 @@ def build_query(req:str, index_name:str,
     """
     from_date, to_date, list_author = None, None, []
     # process gloassary
-    #import pdb; pdb.set_trace()
     if glossary_file:
         with open(glossary_file, 'r') as f:
             content = f.read()
@@ -68,21 +67,21 @@ def build_query(req:str, index_name:str,
         # process expression
         with open(expression_file, 'r') as f:
             content = f.read()
-        list_expression = content.split('\n')[:-1] # last empty line
-
+        list_expression = [x.split('=>')[1] for x in content.split(
+                '\n')[:-1] if '=>' in x] # last empty line
+        list_expression = [x.replace('_','').strip() for x in list_expression]
     # TODO : process all keyword???
     # Liste_acronyme
 
     print(req)
     #Au début on va analyser la requête
 
-    body = {'analyzer':"french", "text": req}
+    body = {'analyzer':"my_analyzer", "text": req}
     analyse = indices.analyze(index= index_name, body = body)
 
-    L = [ananyse_tokens['token'] for ananyse_tokens in analyse["tokens"]]
-    print(L)
-    analyzed = " ".join(L)
-    lenght_of_request = len(L)
+    analyzed = [ananyse_tokens['token'] for ananyse_tokens in analyse["tokens"]]
+
+    lenght_of_request = len(analyzed)
 
     #------------------------Application du filtre 1 -----------------------------
     T = False
@@ -98,12 +97,10 @@ def build_query(req:str, index_name:str,
     req_expression = []
     for expression in list_expression:
         if expression in analyzed :
-            for r in ((' ', ''), ('-' ,''), ('_' , '')):
-                expression = expression.replace(*r)
-            if expression not in req_expression:
-                req_expression.append(expression)
-                print('req_expression :')
-                print(req_expression)
+            req_expression.append(expression)
+            print('req_expression :')
+            print(req_expression)
+    #import pdb; pdb.set_trace()
 
     body = { "query": {
                     "bool": {
@@ -227,23 +224,30 @@ def create_index(nom_index,
             glossary_file=None,
             expression_file=None):
 
+
+    synonym_file = os.path.join(es_data, 'synonym.txt')
+    print(os.path.join(user_data, mapping_file))
     with open(os.path.join(user_data, mapping_file) , 'r' , encoding = 'utf-8') as json_file:
         map = json.load(json_file)
+    # Copy glossary and experssion file to elastic search mount volume
+    print(map)
 
-    if glossary_file:
-        print('Use glossary file %s'%glossary_file)
-        # Copy glossary and experssion file to elastic search mount volume
-        copyfile(os.path.join(user_data, glossary_file),
-                os.path.join(es_data, glossary_file))
-        map['settings']['index']["analysis"]["filter"]["glossary"].update(
-                {"synonyms_path" : os.path.join(es_data, glossary_file)})
+    with open(synonym_file, 'w') as outfile:
+        if glossary_file:
+            print('Use glossary file %s'%glossary_file)
+            with open(os.path.join(user_data, glossary_file), 'r') as f1:
+                outfile.write(f1.read())
+        outfile.write('\n')
+        if expression_file:
+            print('Use expresion file %s'%expression_file)
+            with open(os.path.join(user_data, expression_file), 'r') as f2:
+                outfile.write(f2.read())
 
-    if expression_file:
-        print('Use expresion file %s'%expression_file)
-        copyfile(os.path.join(user_data, expression_file),
-                os.path.join(es_data, expression_file))
-        map["settings"]['index']["analysis"]['char_filter']["my_char_filter"].update(
-                {'mappings_path' : os.path.join(es_data, expression_file)})
+        else:
+            outfile.write()
+
+    map['settings']["analysis"]["filter"]["synonym"].update(
+            {"synonyms_path" : os.path.join(es_data, synonym_file)})
 
     print(map)
     with open(os.path.join(es_data, mapping_file), 'w') as outfile:
@@ -254,7 +258,7 @@ def create_index(nom_index,
     es.indices.create(index = nom_index, body=map)
 
 
-def inject_documents(nom_index, user_data, pdf_path=None, json_path=None,
+def inject_documents(nom_index, user_data, pdf_path, json_path,
             metada_file=None):
 
     no_match = 0
@@ -300,11 +304,6 @@ def inject_documents(nom_index, user_data, pdf_path=None, json_path=None,
                 print(20*'*')
 
     print("There is %s documents without metadata match"%no_match)
-
-def refresh(nom_index):
-    es.indices.refresh(index = nom_index)
-    return
-
 
 if __name__ == '__main__':
 

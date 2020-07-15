@@ -38,13 +38,12 @@
         },
         "minimal_stemmer": {
           "type" : "stemmer",
-          "name" : "light_french"
-        },
-        "my_multiplexer": {
-          "type" : "multiplexer",
-          "filters" : ["acronym"]
+          "name" : "french"
         },
         "acronym": {
+          "type": "synonym"
+        },
+        "light_acronym": {
           "type": "synonym"
         },
         "expression": {
@@ -57,17 +56,12 @@
          "type": "pattern_replace",
          "pattern": "_(.*)_",
          "replacement" : "$1"
-       },
-       "my_beider_morse": {
-        "type": "phonetic",
-        "encoder": "beider_morse",
-        "replace": false,
-        "languageset": "french"
-      }
+       }
       },
       "analyzer": {
         "my_analyzer": {
-          "char_filter": [ "quotes","new_line" ],
+          "type":"custom",
+          "char_filter": [ "quotes","new_line","html_strip"],
           "tokenizer": "icu_tokenizer",
           "filter": [
             "lowercase",
@@ -76,18 +70,27 @@
             "french_stop",
             "more_stop",
             "minimal_stemmer",
+            "light_acronym",
             "synonym",
             "remove_artifact"
             ]
         },
-        "phonetic_analyser": {
-          "tokenizer": "standard",
+        "my_search_analyzer": {
+          "type":"custom",
+          "char_filter": [ "quotes","new_line","html_strip"],
+          "tokenizer": "icu_tokenizer",
           "filter": [
             "lowercase",
-            "my_beider_morse"
-          ]
+            "french_elision",
+            "icu_folding",
+            "more_stop",
+            "minimal_stemmer",
+            "acronym",
+            "synonym",
+            "remove_artifact"
+            ]
         }
-      }
+      }  
     },
     "index": {
       "blocks": {
@@ -100,13 +103,8 @@
        "content": {
           "type": "text",
           "analyzer" : "my_analyzer",
-          "search_analyzer" : "my_analyzer"
-        },
-        "author": {
-          "type": "text" ,
-          "analyzer" : "phonetic_analyser",
-          "search_analyzer" : "phonetic_analyser"
-        }
+          "search_analyzer": "my_search_analyzer"
       }
+    }
   }
 }

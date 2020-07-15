@@ -245,6 +245,7 @@ def create_index(nom_index,
             es_data,
             mapping_file,
             glossary_file=None,
+            light_glossary_file=None,
             expression_file=None):
 
 
@@ -260,6 +261,11 @@ def create_index(nom_index,
             print('Use glossary file %s'%glossary_file)
             with open(os.path.join(user_data, glossary_file), 'r') as f1:
                 outfile.write(f1.read())
+        outfile.write('\n')
+        if light_glossary_file:
+            print('Use light glossary file %s'%light_glossary_file)
+            with open(os.path.join(user_data, light_glossary_file), 'r') as f3:
+                outfile.write(f3.read())
         outfile.write('\n')
         if expression_file:
             print('Use expresion file %s'%expression_file)
@@ -350,7 +356,8 @@ if __name__ == '__main__':
     ES_DATA = '/usr/share/elasticsearch/data/extra'
 
     GLOSSARY_FILE = 'glossaire.txt'
-    EXPRESSION_FILE = 'syn_expressions_metier.txt'
+    LIGHT_GLOSSARY_FILE = 'light_glossaire.txt'
+    EXPRESSION_FILE = 'expression.txt'
     MAPPING_FILE = 'map.json'
     METADATA_FILE = 'METADATA.xlsx'
 
@@ -359,6 +366,7 @@ if __name__ == '__main__':
 
     create_index(NOM_INDEX, USER_DATA, ES_DATA, MAPPING_FILE,
                 GLOSSARY_FILE,
+                LIGHT_GLOSSARY_FILE,
                 EXPRESSION_FILE)
 
     inject_documents(NOM_INDEX, USER_DATA, PDF_DIR, JSON_DIR,

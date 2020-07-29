@@ -12,7 +12,7 @@
 <div>
 	<h1>Ajout d'un nouveau document dans le moteur</h1>
 	<br>
-	<p>Renseigner des champs et selectionner un fichier. Le document va être indexer
+	<p>Renseignez des champs et selectionnez un fichier. Le document va être indexé
 	automatiquement dans le moteur, il est inutile de reconstruire l'index Elasticsearch.</p>
 	<NewItem />
 </div>

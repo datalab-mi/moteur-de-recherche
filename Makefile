@@ -63,7 +63,7 @@ PYTHONUNBUFFERED=1
 
 dummy		    := $(shell touch artifacts)
 include ./artifacts
-export
+
 
 #vm_max_count            := $(shell cat /etc/sysctl.conf | egrep vm.max_map_count\s*=\s*262144 && echo true)
 #
@@ -231,6 +231,8 @@ frontend-clean-dist-archive:
 frontend-export:
 	${DC} -f $(DC_FILE)-frontend-build.yml config -q
 
+
+
 nginx-check-build:
 	${DC} -f $(DC_FILE)-nginx.yml config -q
 
@@ -248,3 +250,19 @@ stop: nginx-stop backend-stop elasticsearch-stop
 
 dev: network frontend-dev backend-dev elasticsearch nginx-dev
 down: frontend-dev-stop backend-dev-stop elasticsearch-stop nginx-dev-stop
+
+#############
+# SWIFT 	  #
+#############
+
+frontend-upload-swift:
+	@echo "Send ${APP}-build/$(FILE_FRONTEND_DIST_APP_VERSION) to SWIFT"
+	# swift --insecure --debug --os-auth-token $(OS_AUTH_TOKEN) --os-storage-url $(OS_STORAGE_URL) upload ${APP} ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)"
+	swift --insecure --debug --os-auth-url $(OS_AUTH_URL) \
+	      --os-username $(OS_USERNAME) --os-password $(OS_PASSWORD) --os-project-id $(OS_PROJECT_ID) \
+	      --os-user-domain-name $(OS_USER_DOMAIN_NAME) \
+				upload ${APP} ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)"
+
+frontend-download-swift:
+	swift --insecure --debug --os-storage-url $(OS_STORAGE_URL) \
+	 			download ${APP} ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)"

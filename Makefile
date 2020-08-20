@@ -168,7 +168,7 @@ nginx-dev: network
 nginx-dev-stop: network
 	${DC} -f ${DC_FILE}-nginx-dev.yml down
 
-nginx: network
+nginx: nginx-build network
 	${DC} -f $(DC_FILE)-nginx.yml up -d
 nginx-stop:
 	${DC} -f $(DC_FILE)-nginx.yml down
@@ -254,20 +254,16 @@ down: frontend-dev-stop backend-dev-stop elasticsearch-stop nginx-dev-stop
 #############
 # SWIFT 	  #
 #############
+chmod:
+	chmod +x openstack/*.sh
 
 frontend-upload-swift:
 	@echo "Send ${APP}-build/$(FILE_FRONTEND_DIST_APP_VERSION) to SWIFT"
 	# swift --insecure --debug --os-auth-token $(OS_AUTH_TOKEN) --os-storage-url $(OS_STORAGE_URL) upload ${APP} ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)"
-	swift --insecure --debug --os-auth-url $(OS_AUTH_URL) \
-	      --os-username $(OS_USERNAME) --os-password $(OS_PASSWORD) --os-project-id $(OS_PROJECT_ID) \
-	      --os-user-domain-name $(OS_USER_DOMAIN_NAME) \
-				upload ${APP} ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)"
+	./openstack/upload.sh ${APP} ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)" 'swift'
 
-frontend-download-swift:
-	[ -z "$$OS_AUTH_TOKEN" ] && echo "No OS token!!" || curl -i -k \
-			$(OS_STORAGE_URL)/${APP}/${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)" \
-			-X GET \
-			-H "X-Auth-Token: "$OS_AUTH_TOKEN"" > ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)"
-				#swift --insecure --debug \
-				#--os-storage-url $(OS_STORAGE_URL) --os-auth-token $(OS_AUTH_TOKEN)  \
-	 			#download ${APP} ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)"
+frontend-download-swift: chmod
+	./openstack/download.sh ${APP} ${APP}-build/$(FILE_FRONTEND_DIST_APP_VERSION) 'curl'
+
+data-upload-swift: chmod
+	./openstack/upload.sh ${APP} backend/tests/iga/data 'swift'

@@ -1,0 +1,3 @@
+carte nationale identite => _CNI_
+ministere interieur => _MI_
+direction centrale recrutement formation police nationale => _DCRFPN_

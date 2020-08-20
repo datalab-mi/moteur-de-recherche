@@ -264,5 +264,10 @@ frontend-upload-swift:
 				upload ${APP} ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)"
 
 frontend-download-swift:
-	swift --insecure --debug --os-storage-url $(OS_STORAGE_URL) \
-	 			download ${APP} ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)"
+	[ -z "$$OS_AUTH_TOKEN" ] && echo "No OS token!!" || curl -i -k \
+			$(OS_STORAGE_URL)/${APP}/${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)" \
+			-X GET \
+			-H "X-Auth-Token: "$OS_AUTH_TOKEN"" > ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)"
+				#swift --insecure --debug \
+				#--os-storage-url $(OS_STORAGE_URL) --os-auth-token $(OS_AUTH_TOKEN)  \
+	 			#download ${APP} ${APP}-build/"$(FILE_FRONTEND_DIST_APP_VERSION)"

@@ -9,7 +9,7 @@
 echo "$1"
 echo "$(dirname $2)"
 
-if [ $3 = "swift" ]
+if [ $3 = "cli" ]
 then
   # with SWIFT, support folder
   swift --insecure --debug \

@@ -267,3 +267,6 @@ frontend-download-swift: chmod
 
 data-upload-swift: chmod
 	./openstack/upload.sh ${APP} backend/tests/iga/data 'swift'
+
+data-download-swift: chmod
+	./openstack/download.sh ${APP} backend/tests/iga/data 'swift'

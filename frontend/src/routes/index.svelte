@@ -7,8 +7,6 @@
 
 	import ResultList from '../components/ResultList.svelte';
 	import SearchBar from '../components/SearchBar.svelte';
-	import UploadFiles from '../components/NewItem.svelte';
-
 
 </script>
 

@@ -6,8 +6,8 @@ export DATA_PATH = ${APP_PATH}/backend/tests/iga/data
 
 # docker compose
 export DC := /usr/local/bin/docker-compose
-export DC_DIR=${APP_PATH}
-export DC_FILE=${DC_DIR}/docker-compose
+export DC_DIR = ${APP_PATH}
+export DC_FILE = ${DC_DIR}/docker-compose
 export DC_PREFIX := $(shell echo ${APP} | tr '[:upper:]' '[:lower:]' | tr '_' '-')
 export DC_NETWORK := $(shell echo ${APP} | tr '[:upper:]' '[:lower:]')
 export DC_BUILD_ARGS = --pull --no-cache

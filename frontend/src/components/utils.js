@@ -1,9 +1,11 @@
-async function upload(meta, files) {
+async function upload(meta, file) {
   //for (var i = 0; i < files.length; i++) {
     //var file = files[i];
   const formData = new FormData();
-  const filename = files[0].name
-  formData.append('file', files[0]);
+  console.log('upload :')
+  console.log(file)
+  const filename = file.name
+  formData.append('file', file);
 
   meta.forEach(item => formData.append(item.key, item.value));
 

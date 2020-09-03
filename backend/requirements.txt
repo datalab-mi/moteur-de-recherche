@@ -9,3 +9,4 @@ elasticsearch===7.0.0,<8.0.0
 tika==1.19
 xlrd
 odfpy==1.4.0
+Unidecode==1.1.1

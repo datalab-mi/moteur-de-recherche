@@ -4,12 +4,12 @@ import { index_name } from './stores.js';
 import { index, upload } from './utils.js'
 
 export let meta;
-export let files;
+export let file;
 
 let filename;
 $: {
-  console.log(files)
-  filename = files[0].name.replace(/\+/g, " ")
+  console.log(file)
+  filename = file.name.replace(/\+/g, " ")
 }
 
 let promiseUpload = new Promise(()=>{});
@@ -18,7 +18,7 @@ let promiseIndex = new Promise(()=>{});
 
 async function handleUpdate() {
   console.log(`Save ${filename}`)
-  promiseUpload = await upload(meta, files)
+  promiseUpload = await upload(meta, file)
   promiseIndex = await index($index_name, filename, 'PUT');
 }
 

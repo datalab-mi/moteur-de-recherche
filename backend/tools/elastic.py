@@ -16,7 +16,7 @@ from copy import deepcopy
 from pathlib import Path
 from shutil import copyfile
 import pandas as pd
-from tools.converter import pdf2json, save_json
+from tools.converter import pdf2json, odt2json, save_json
 
 
 def empty_tree(pth: Path):
@@ -363,8 +363,8 @@ def create_index(INDEX_NAME,
     es.indices.create(index=INDEX_NAME, body=map)
 
 
-def inject_documents(INDEX_NAME, user_data, pdf_path, json_path,
-            meta_path=None):
+def inject_documents(INDEX_NAME, user_data, dst_path, json_path,
+            meta_path=None, doc_type='pdf', sections=[]):
 
     no_match = 0
 
@@ -372,13 +372,14 @@ def inject_documents(INDEX_NAME, user_data, pdf_path, json_path,
     # empty it in case
     empty_tree(Path(user_data) / json_path)
 
-    for path_document in (Path(user_data) / pdf_path).glob('**/*.pdf'):
+    for path_document in (Path(user_data) / dst_path).glob('**/*.%s'%doc_type):
         try:
             #path_document = pdf_path / filename
             print('Read %s'%str(path_document))
 
-            index_file(path_document.name, INDEX_NAME, user_data, pdf_path, json_path,
-                        meta_path)
+            index_file(path_document.name, INDEX_NAME, user_data,
+                        dst_path, json_path, meta_path,
+                        doc_type= doc_type, sections=sections)
             print('Document %s just uploaded'% path_document)
 
         except Exception as e:
@@ -391,14 +392,16 @@ def inject_documents(INDEX_NAME, user_data, pdf_path, json_path,
 
     print("There is %s documents without metadata match"%no_match)
 
-def index_file(filename, INDEX_NAME, user_data, pdf_path, json_path,
-            meta_path):
+def index_file(filename, INDEX_NAME, user_data, dst_path, json_path,
+            meta_path, doc_type='pdf', sections=[]):
     """
     Index json file to elastic with metadata
-    Todo : substitue this function in inject_document
     """
-    path_file = Path(user_data) / pdf_path / filename
-    data = pdf2json(str(path_file))
+    path_file = Path(user_data) / dst_path / filename
+    if doc_type == 'pdf':
+        data = pdf2json(str(path_file))
+    elif doc_type == 'odt':
+        data = odt2json(str(path_file), sections)
 
     path_meta =  Path(user_data) / meta_path / filename
     path_json =  Path(user_data) / json_path / filename

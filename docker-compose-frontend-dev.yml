@@ -9,7 +9,6 @@ services:
         http_proxy: ${http_proxy}
         https_proxy: ${https_proxy}
         no_proxy: ${no_proxy}
-        PDFJS_VERSION: ${PDFJS_VERSION}
     stdin_open: true
     environment:
       - NODE_ENV=development
@@ -18,7 +17,6 @@ services:
     container_name: ${FRONTEND_DEV_HOST}
     volumes:
       - ${FRONTEND}/src:/app/src
-      - ${ES_DATA}/extra:/usr/share/elasticsearch/data/extra
     ports:
       - "${FRONTEND_PORT}:3000"
       - "35729:35729"

@@ -3,39 +3,19 @@
     import BaseItem from './BaseItem.svelte'
     import PutItem from './PutItem.svelte'
 
-    import { index_name } from './stores.js';
+    import { index_name, item } from './stores.js';
     import {upload, index } from  './utils.js'
     const required = false;
-    let files;
-    let meta = [
-              {
-                key: 'title',
-                type: 'text',
-                placeholder: 'Renseigner le titre',
-                value: '',
-                innerHtml: ''
-              },
-              {
-                key: 'author',
-                type: 'text',
-                placeholder: 'Séparez les par des virgules',
-                value: '',
-                innerHtml: '<b>Auteurs :</b>'
-              },
-              {
-                key: 'date',
-                type: 'date',
-                placeholder: 'Date',
-                value: '',
-                innerHtml: '<b>Date :</b>'
-              }
-            ]
+    let files ;
+    let fileNameList = [];
+    let meta = $item.new
 
-  let send = false;
+    let send = false;
+
 
 </script>
 
-<BaseItem meta={meta} required={required}>
+<BaseItem {meta} required={required}>
 
 
   <div slot="button">
@@ -43,7 +23,7 @@
     Choisir un fichier
     </label>
 
-    <input id="fileUpload" type="file" bind:files>
+    <input id="fileUpload" type="file" bind:files multiple={$item.multiple} accept={$item.accept}>
 
     {#if files}
       <button on:click="{() => send = !send}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
@@ -51,7 +31,9 @@
         <span>SOUMETTRE</span>
       </button>
       <br>
-      {files[0].name}
+      {#each files as file}
+        <li>{file.name}</li>
+      {/each}
     {:else}
       <button disabled class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
         <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13 10v6H7v-6H2l8-8 8 8h-5zM0 18h20v2H0v-2z"/></svg>
@@ -61,7 +43,9 @@
     {/if}
 
     {#if send}
-      <PutItem meta={meta} files={files} />
+    {#each files as file}
+      <PutItem {meta} file={file} />
+    {/each}
     {/if}
   </div>
 

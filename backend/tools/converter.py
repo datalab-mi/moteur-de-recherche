@@ -8,6 +8,12 @@ from tika import parser
 from os import environ
 import re
 from pathlib import Path
+import unidecode
+
+def normalize(string: str):
+    """Strip lower and accent removal
+    """
+    return unidecode.unidecode(string.strip().lower())
 
 def odt2json(path: str, sections: list = []) -> dict:
     """ Fonction qui permet la conversion des Json en Odt elle prend en argument:
@@ -18,36 +24,49 @@ def odt2json(path: str, sections: list = []) -> dict:
         text: text
     """
 
-    sections = ['TITRE' , 'DOMAINE' , 'Mots clés' , 'Date' , 'Question' , 'Réponse' , 'Pièces jointes' , 'Liens' , 'Références']
-
+    sections = [normalize(x) for x in sections]
+    print('Sections are : ')
+    print(sections)
+    # extract test from doc
     doc = load(path)
-    #J'ai accés aux élélments du document
-    allparas = doc.getElementsByType(text.P)
-    #Liste pour les éléments du document
-    L=[]
-    for i in range (len(allparas)):
-        L.append(teletype.extractText(allparas[i]))
-    # remove ''s i.e Nones
-    L = list(filter(None, L))
-    #J'enlève le cadre
-    # TODO Specific to some docs
-    ###L = L[3:]
-    #J'enlève les caractères spaciaux
-    for i in range (len(L)):
-        L[i] = L[i].replace(u'\xa0', u' ') #J'enlève les \xa0
-        L[i] = L[i].replace(u'\n' , u' ') #J'enlève les \n
-    # convert and store all values
+    L = [teletype.extractText(x) for x in doc.getElementsByType(text.P)]
 
-    d = dict(content=" ".join(L))
-    check = 0
+    # remove None and empty string (i.e borders)
+    L = [x for x in L if x and x != '']
+
+    # replace \xa0 and \n
+    L = [x.replace(u'\xa0', u' ').replace(u'\n' , u' ') for x in L]
+
+
+    L2 = []
+
     for x in L:
-        y = x.split(':')
-        if y[0].strip() in sections:
-            if len(y[1].strip()) > 1:
-                d[y[0].strip()] = y[1].strip()
+        g = re.match("^({sections})\s*:\s*(.*)".format(sections='|'.join(sections)), normalize(x))
+        if g:
+            L2 += [g.group(1), g.group(2)]
+        else:
+            # Section is not present
+            L2 += [x]
 
-    # TODO à detailler l'extraction des données
-    return d
+    # Remove empty or digit element
+    L2 = [x for x in L2 if x and x != '' and not x.isdigit()]
+
+    data = {}
+    section_content = []
+    current_section = ''
+    for x in L2:
+        if normalize(x) in sections:
+            current_section = normalize(x).replace(' ','-')
+            section_content = []
+        else:
+            section_content += [x]
+
+        data[current_section] = ' ,'.join(section_content)
+
+    if '' in data:
+        data.pop('')
+    #import pdb; pdb.set_trace()
+    return data
 
 
 def pdf2json(path: str, sections: list = []) -> dict:

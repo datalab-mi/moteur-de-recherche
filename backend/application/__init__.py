@@ -1,7 +1,5 @@
 """Initialize app."""
 from flask import Flask
-import os
-from dotenv import load_dotenv
 
 def create_app():
     """Construct the core application."""

@@ -20,7 +20,8 @@ services:
     entrypoint: ./start.sh ${EXEC_ENV}
     environment:
       BACKEND_PORT: ${BACKEND_PORT}
-      ENV_FILE: ${ENV_FILE}
+    env_file:
+      - ${ENV_FILE}
   tika:
     image: logicalspark/docker-tikaserver
     container_name: ${DC_PREFIX}-tika

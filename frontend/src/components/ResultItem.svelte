@@ -27,10 +27,23 @@
 	// replace value to the result value contained in _source
 	$: {
 		meta = []
-		$item.result.forEach((item, index) => {
-			item.value = _source[item.key]
-			meta.push(item)
-		})
+
+			$item.result.forEach((item, index) => {
+				console.log(item.key)
+				console.log(item.highlight)
+				console.log((item.key in highlight))
+
+				if (item.highlight && (item.key in highlight)) {
+					console.log('Use highlight field')
+					item.value = highlight[item.key].join(' [...] ')
+
+				} else {
+					item.value = _source[item.key]
+				}
+				console.log(item.value)
+				meta.push(item)
+			})
+
 
 		console.log(meta)
 	}
@@ -63,7 +76,7 @@
 <BaseItem meta={meta} bind:readonly={readonly} cssClass='result'>
 
 	<div slot="highlight">
-		{#if highlight.content != ''}
+		{#if content in highlight && highlight.content != ''}
 			<p> &laquo; {@html highlight.content.join(' [...] ')} &raquo; </p>
 		{/if}
 	</div>

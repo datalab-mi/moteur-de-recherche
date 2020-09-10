@@ -58,9 +58,9 @@ def clean(expression:str, index_name:str, analyzer="clean_analyser"):
     return list_token
 
 
-def build_query(req:str, index_name:str,
-        glossary_file=None, expression_file=None,
-        from_date=None, to_date=None, author=None) -> dict:
+def build_query(must: dict, should: dict, filter: dict, index_name: str,
+            highlight: list,
+            glossary_file=None, expression_file=None) -> dict:
     """
     Build the body of the query
     Args:
@@ -83,7 +83,7 @@ def build_query(req:str, index_name:str,
     # TODO : process all keyword???
     # Liste_acronyme
 
-    print(req)
+    req = ""
     #Au début on va analyser la requête
     body = {'analyzer':"my_analyzer", "text": req}
     analyse = indices.analyze(index= index_name, body = body)
@@ -130,46 +130,34 @@ def build_query(req:str, index_name:str,
                         "boundary_scanner" : "sentence",
                         "boundary_scanner_locale" : "fr-FR",
                         "fields":{
-                            "content":{}
+                            "question":{},
+                            "reponse":{}
                             }
                     }
                 }
 
 
-    if len(req.strip()) > 0:
-        body["query"]['bool']['must'].append({"simple_query_string": {
-                                    "fields" : ["content" , "title"],
-                                    "query": req ,
-                                    "analyze_wildcard": False
-                                                }})
+    if must:
+        body["query"]['bool']['must'].append(must)
 
     for key in req_expression:
       body['query']['bool']["should"].append({"match":{
-                                      'content' :{
+                                      'mots-cles' :{
                                           "query" : '_' + key + '_',
                                           "boost" : 5
                                                 }}})
 
 
-    if from_date:
-        body['query']['bool']["filter"].append({"range" :
-                                {"date" : {"gte" : from_date}}
-                                             })
-    if  to_date:
-        body['query']['bool']["filter"].append({"range" :
-                                {"date" : {"lte" : to_date}}
-                                            })
+    if filter:
+        body['query']['bool']["filter"].append(filter)
 
-    if author:
-      body['query']['bool']["filter"].append({"match" :
-                        {"author" : {"query" : author}}})
 
     print(body)
     return body, length_of_request
 
-def search(req, index_name,
-            glossary_file=None, expression_file=None,
-            from_date=None, to_date=None, author=None):
+def search(must: dict, should: dict, filter: dict, index_name: str,
+            highlight: list,
+            glossary_file=None, expression_file=None):
 
     """Fonction qui permet de faire la recherche Elastic dans notre index
 
@@ -190,12 +178,11 @@ def search(req, index_name,
             T = True
             break
     """
+    req = "test"
     if (req != '') or from_date or to_date or author:
-        body, length_of_request = build_query(req,
-                            index_name,
-                            glossary_file,
-                            expression_file,
-                            from_date, to_date, author)
+        body, length_of_request = build_query(must, should, filter, index_name,
+                    highlight,
+                    glossary_file=None, expression_file=None)
 
         D = es.search(index = index_name,
                       body = body,

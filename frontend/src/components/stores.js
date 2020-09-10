@@ -1,34 +1,21 @@
 import { readable, writable } from 'svelte/store';
 
 // auth: https://www.toptal.com/front-end/svelte-framework-guide
-export const searchInput = writable({
-  content: {
-    value: "",
-    type: "text",
+export const searchInput = writable([
+  [
+    {
+    bool: "must",
+    clause: "multi_match",
+    fields: ["titre", "question" , "reponse"],
+    query: "",
+    type: "search",
     placeholder: "Recherche par mots clefs",
-    innerHtml: ""
-    },
-  author: {
-    value: "",
-    type: "text",
-    placeholder: "Paul Dupond, Anne-Marie",
-    innerHtml: "Nom ou Prénom"
-
-  },
-  from_date: {
-    value: "",
-    type: "text",
-    placeholder: "01/01/2018",
-    innerHtml: "A partir de : "
-
-  },
-  to_date: {
-    value: "",
-    type: "text",
-    placeholder: "01/01/2018",
-    innerHtml: "Jusqu'à : "
-  }
-  }
+    innerHtml: "",
+    style: "w-3/4 p-2",
+    highlight: true
+    }
+  ]
+]
 )
 
 export const searchResults = writable({
@@ -38,7 +25,7 @@ export const searchResults = writable({
 
 export const suggestEntry = writable([]);
 
-export const index_name = writable('iga')
+export const index_name = writable('bld')
 export const isReindex = writable(false)
 
 export const list_synonym = writable([])
@@ -46,51 +33,41 @@ export const list_synonym = writable([])
 // The const item describe the behaviour and the display of an item.
 // The key should match with their elasticsearch counterparts
 export const item = readable({
-  multiple: true,
-  accept: '.pdf',
-  new: [
-        {
-          key: 'title',
-          type: 'text',
-          placeholder: 'Renseigner le titre',
-          value: '',
-          innerHtml: ''
-        },
-        {
-          key: 'author',
-          type: 'text',
-          placeholder: 'Séparez les par des virgules',
-          value: '',
-          innerHtml: '<b>Auteurs :</b>'
-        },
-        {
-          key: 'date',
-          type: 'date',
-          placeholder: 'Date',
-          value: '',
-          innerHtml: '<b>Date :</b>'
-        }
-          ],
-    result: [
-        {
-          key: 'title',
-          type: 'text',
-          placeholder: 'NA',
-          value: '',
-          innerHtml: ''
-        },
-        {
-          key: 'author',
-          type: 'text',
-          placeholder: 'NA',
-          value: '',
-          innerHtml: '<b>Auteurs :</b>'
-        },
-        {
-          key: 'date',
-          type: 'date',
-          value: '',
-          innerHtml: '<b>Date :</b>'
-        }
-          ]
+  multiple: false,
+  accept: '.odt',
+  new: [],
+  result: [
+      {
+        key: 'titre',
+        type: 'text',
+        placeholder: 'NA',
+        value: '',
+        innerHtml: ''
+      },
+      {
+        key: 'question',
+        type: 'textarea',
+        placeholder: 'NA',
+        value: '',
+        innerHtml: '<b>Question :</b>',
+        readonly: true,
+        highlight: true
+      },
+      {
+        key: 'reponse',
+        type: 'textarea',
+        placeholder: 'NA',
+        value: '',
+        innerHtml: '<b>Réponse :</b>',
+        readonly: true,
+        highlight: true
+      },
+      {
+        key: 'liens',
+        type: 'textarea',
+        placeholder: 'NA',
+        value: '',
+        innerHtml: '<b>Pièces jointes :</b>'
+      }
+        ]
 })

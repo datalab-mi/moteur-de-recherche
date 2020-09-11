@@ -8,7 +8,8 @@
     const required = false;
     let files ;
     let fileNameList = [];
-    let meta = $item.new
+    let meta = $item.inputs.filter(obj => obj.metadata);
+    console.log(meta)
 
     let send = false;
 

@@ -24,7 +24,8 @@ def odt2json(path: str, sections: list = []) -> dict:
         text: text
     """
 
-    sections = [normalize(x) for x in sections]
+    sections = [{'key':normalize(x['key']), 'array':x['array']} for x in sections]
+
     print('Sections are : ')
     print(sections)
     # extract test from doc
@@ -37,13 +38,13 @@ def odt2json(path: str, sections: list = []) -> dict:
     # replace \xa0 and \n
     L = [x.replace(u'\xa0', u' ').replace(u'\n' , u' ') for x in L]
 
-
     L2 = []
 
     for x in L:
-        g = re.match("^({sections})\s*:\s*(.*)".format(sections='|'.join(sections)), normalize(x))
+        g = re.match("^({sections})\s*:\s*(.*)".format(sections='|'.join([x['key'] for x in sections] )), normalize(x))
+
         if g:
-            L2 += [g.group(1), g.group(2)]
+            L2 += [g.group(1), x[g.span(2)[0]: g.span(2)[1]]] # span rather group to get origal string
         else:
             # Section is not present
             L2 += [x]
@@ -54,18 +55,24 @@ def odt2json(path: str, sections: list = []) -> dict:
     data = {}
     section_content = []
     current_section = ''
+    #import pdb; pdb.set_trace()
+
     for x in L2:
-        if normalize(x) in sections:
-            current_section = normalize(x).replace(' ','-')
+        if normalize(x) in [x['key'] for x in sections]:
+            current_section = normalize(x)
             section_content = []
         else:
             section_content += [x]
 
-        data[current_section] = ' ,'.join(section_content)
+        if current_section in [x['key'] for x in sections] :
+            is_array = [x['array'] for x in sections if x['key'] == current_section][0]
+            if is_array:
+                data[current_section] = section_content
+            else :
+                data[current_section] = ' ,'.join(section_content)
 
     if '' in data:
         data.pop('')
-    #import pdb; pdb.set_trace()
     return data
 
 

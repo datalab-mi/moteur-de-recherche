@@ -6,6 +6,7 @@ import { index, upload } from './utils.js'
 export let meta;
 export let file;
 
+
 let filename;
 $: {
   console.log(file)

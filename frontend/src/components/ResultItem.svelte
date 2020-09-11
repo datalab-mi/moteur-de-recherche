@@ -9,7 +9,7 @@
 	export let _source;
 	export let _score;
 
-	export let highlight = {'content':''};
+	export let highlight = {};
 
 	$: filename = _id.replace(/\+/g, " ")
 	//$: url = `/web/viewer.html?file=%2Fuser%2Fpdf%2F${filename}`
@@ -24,28 +24,25 @@
 
 	let isResult = true;
 
-	// replace value to the result value contained in _source
+	// replace value to the result value contained in _source or in highlight key
+	// if present and if needed
 	$: {
+		if (!highlight) {
+			highlight = {}
+		}
 		meta = []
-
-			$item.result.forEach((item, index) => {
-				console.log(item.key)
-				console.log(item.highlight)
-				console.log((item.key in highlight))
-
-				if (item.highlight && (item.key in highlight)) {
-					console.log('Use highlight field')
+			$item.inputs.forEach((item, index) => {
+				console.log(highlight)
+				if (item.highlight && highlight && (item.key in highlight)) {
 					item.value = highlight[item.key].join(' [...] ')
-
+					item.isHighlight = true
 				} else {
 					item.value = _source[item.key]
+					item.isHighlight = false
+
 				}
-				console.log(item.value)
 				meta.push(item)
 			})
-
-
-		console.log(meta)
 	}
 
 	const file = {'name': _id.replace(/\+/g, " ")}
@@ -116,8 +113,6 @@
 				<span>MODIFER</span>
 			</button>
 		{/if}
-
-
 
 		{#await promiseDelete}
 		{:then status}

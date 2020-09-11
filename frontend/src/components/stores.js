@@ -1,7 +1,7 @@
 import { readable, writable } from 'svelte/store';
 
 // auth: https://www.toptal.com/front-end/svelte-framework-guide
-export const searchInput = writable([
+export const searchList = writable([
   [
     {
     bool: "must",
@@ -35,39 +35,42 @@ export const list_synonym = writable([])
 export const item = readable({
   multiple: false,
   accept: '.odt',
-  new: [],
-  result: [
-      {
-        key: 'titre',
-        type: 'text',
-        placeholder: 'NA',
-        value: '',
-        innerHtml: ''
-      },
-      {
-        key: 'question',
-        type: 'textarea',
-        placeholder: 'NA',
-        value: '',
-        innerHtml: '<b>Question :</b>',
-        readonly: true,
-        highlight: true
-      },
-      {
-        key: 'reponse',
-        type: 'textarea',
-        placeholder: 'NA',
-        value: '',
-        innerHtml: '<b>Réponse :</b>',
-        readonly: true,
-        highlight: true
-      },
-      {
-        key: 'liens',
-        type: 'textarea',
-        placeholder: 'NA',
-        value: '',
-        innerHtml: '<b>Pièces jointes :</b>'
-      }
-        ]
+  inputs: [
+    {
+      key: 'titre',
+      type: 'text',
+      placeholder: 'NA',
+      value: '',
+      innerHtml: '',
+      metadata: false
+    },
+    {
+      key: 'question',
+      type: 'textarea',
+      placeholder: 'NA',
+      value: '',
+      innerHtml: '<b>Question :</b>',
+      highlight: true,
+      metadata: false
+
+    },
+    {
+      key: 'reponse',
+      type: 'textarea',
+      placeholder: 'NA',
+      value: '',
+      innerHtml: '<b>Réponse :</b>',
+      highlight: false,
+      metadata: true
+    },
+    {
+      key: 'pieces jointes',
+      type: 'text',
+      placeholder: 'NA',
+      value: '',
+      innerHtml: '<b>Pièces jointes :</b>',
+      metadata: false
+    }
+  ]
+
 })

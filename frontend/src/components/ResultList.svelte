@@ -1,5 +1,7 @@
 <script>
-import { searchInput, searchResults, index_name } from '../components/stores.js';
+import { searchList, searchResults, index_name } from '../components/stores.js';
+import { onMount } from 'svelte';
+
 import ResultItem from '../components/ResultItem.svelte';
 import VirtualList from '../components/VirtualList.svelte';
 let start;
@@ -10,6 +12,8 @@ let height = '90%';
 $: {
 	let i = 0;
 	items = $searchResults.hits
+	console.log('items : ')
+	console.log(items)
 	for (const hits of $searchResults.hits){
 		if (hits._score < $searchResults.threshold){
 			break
@@ -18,7 +22,6 @@ $: {
 	}
 	items.splice(i, 0, "bar")
 }
-
 
 </script>
 

@@ -1,0 +1,2 @@
+ministere interieur => _MI_
+direction numerique => _DNUM_

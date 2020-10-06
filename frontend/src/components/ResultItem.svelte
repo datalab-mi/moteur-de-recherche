@@ -2,7 +2,7 @@
 	import PutItem from './PutItem.svelte'
 	import Entry from './Entry.svelte'
 
-	import { index_name } from './stores.js';
+	import { index_name, dstDir } from './stores.js';
 	import { index, upload } from './utils.js'
 
 	export let meta;
@@ -17,7 +17,7 @@
 	let isResult = true
 	let cssClass = 'result'
 	let filename = _id.replace(/\+/g, " ")
-	$: url = `/api/common/files/pdf/${filename}`
+	$: url = `/api/common/files/${dstDir}/${filename}`
 	//$: url = `/web/viewer.html?file=%2Fuser%2Fpdf%2F${filename}`
 
 	const file = {'name': _id.replace(/\+/g, " ")}

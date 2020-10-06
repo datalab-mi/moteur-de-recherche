@@ -12,5 +12,7 @@ export const isReindex = writable(false)
 
 export const list_synonym = writable([])
 
-//INDEX_NAME is replaced in rollup.config.js 
+//INDEX_NAME is replaced in rollup.config.js
 export const index_name = writable('INDEX_NAME')
+export const dstDir = "DST_DIR"
+export const pjDir = "PJ_DIR"

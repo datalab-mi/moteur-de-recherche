@@ -28,6 +28,8 @@ services:
       - https_proxy
       - no_proxy
       - INDEX_NAME
+      - DST_DIR
+      - PJ_DIR
 
 networks:
   default:

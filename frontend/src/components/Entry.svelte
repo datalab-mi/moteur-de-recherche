@@ -1,13 +1,14 @@
 <script>
+    import { pjDir } from './stores.js';
 
     export let key
     export let type
-    export let  placeholder
-    export let   value
-    export let  innerHtml
-    export let   highlight
-    export let  metadata
-    export let  isHighlight
+    export let placeholder
+    export let value
+    export let innerHtml
+    export let highlight
+    export let metadata
+    export let isHighlight
 
     export let readonly = false;
     export let required = true
@@ -57,7 +58,7 @@
               {:else if type == "textarea"}
                   <textarea bind:value={val} {placeholder} readonly="{readonly || !metadata}"/>
               {:else if type == "link"}
-                  <input class={(readonly || !metadata) ? "clickable":"no-clickable"} on:click={(readonly || !metadata) ? window.open(`/api/common/files/${val}`,'_blank'): ()=>{}} type='text' bind:value={val} {placeholder} readonly="{readonly || !metadata}"/>
+                  <input class={(readonly || !metadata) ? "clickable":"no-clickable"} on:click={(readonly || !metadata) ? window.open(`/api/common/files/${pjDir}/${val}`,'_blank'): ()=>{}} type='text' bind:value={val} {placeholder} readonly="{readonly || !metadata}"/>
               {/if}
               {#if !readonly  && metadata}
               <button on:click={() => onDelete(val)}>
@@ -86,7 +87,7 @@
       {:else if type == "textarea"}
         <textarea bind:value={value} {placeholder} {rows} readonly="{readonly || !metadata}"/>
       {:else if type == "link"}
-          <input class={(readonly || !metadata) ? "clickable":"no-clickable"} on:click={(readonly || !metadata) ? window.open(`/api/common/files/${value}`,'_blank'): ()=>{}} type='text' bind:value={value} {placeholder} readonly="{readonly || !metadata}"/>
+          <input class={(readonly || !metadata) ? "clickable":"no-clickable"} on:click={(readonly || !metadata) ? window.open(`/api/common/files/${pjDir}/${value}`,'_blank'): ()=>{}} type='text' bind:value={value} {placeholder} readonly="{readonly || !metadata}"/>
       {/if}
     {/if}
   {/if}

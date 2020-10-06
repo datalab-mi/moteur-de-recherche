@@ -21,8 +21,9 @@ export default {
 			replace({
 				'process.browser': true,
 				'process.env.NODE_ENV': JSON.stringify(mode),
-				'INDEX_NAME': process.env.INDEX_NAME
-
+				'INDEX_NAME': process.env.INDEX_NAME,
+				'DST_DIR': process.env.DST_DIR,
+				'PJ_DIR': process.env.PJ_DIR
 			}),
 			svelte({
 				dev,
@@ -68,8 +69,9 @@ export default {
 			replace({
 				'process.browser': false,
 				'process.env.NODE_ENV': JSON.stringify(mode),
-				'INDEX_NAME': process.env.INDEX_NAME
-
+				'INDEX_NAME': process.env.INDEX_NAME,
+				'DST_DIR': process.env.DST_DIR,
+				'PJ_DIR': process.env.PJ_DIR
 			}),
 			svelte({
 				generate: 'ssr',
@@ -96,7 +98,9 @@ export default {
 			replace({
 				'process.browser': true,
 				'process.env.NODE_ENV': JSON.stringify(mode),
-				'INDEX_NAME': process.env.INDEX_NAME
+				'INDEX_NAME': process.env.INDEX_NAME,
+				'DST_DIR': process.env.DST_DIR,
+				'PJ_DIR': process.env.PJ_DIR
 			}),
 			commonjs(),
 			!dev && terser()

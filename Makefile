@@ -256,5 +256,5 @@ nginx-build: nginx-check-build
 start: elasticsearch backend-start nginx
 stop: nginx-stop backend-stop elasticsearch-stop
 
-dev: network frontend-dev backend-dev elasticsearch nginx-dev
+dev: network frontend-dev backend-dev elasticsearch kibana nginx-dev
 down: frontend-dev-stop backend-dev-stop elasticsearch-stop nginx-dev-stop

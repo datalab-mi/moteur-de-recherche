@@ -172,6 +172,10 @@
           "date": {
             "type": "date",
             "format": "yyyy-MM-dd||dd/MM/yyyy"
+          },
+          "question_vector": {
+            "type": "dense_vector",
+            "dims": 768
           }
       }
   }

@@ -9,7 +9,7 @@ from flask import Blueprint, render_template, request, make_response, abort, jso
 
 from tools.elastic import index_file as elastic_index_file
 from tools.elastic import delete_file as elastic_delete_file
-from tools.elastic import create_index, get_alias, put_alias, delete_alias, get_index_name, replace_blue_green, inject_documents, clean
+from tools.elastic import create_index, get_alias, put_alias, delete_alias, exists, get_index_name, replace_blue_green, inject_documents, clean
 
 from tools.utils import empty_tree
 
@@ -138,6 +138,8 @@ def upload_file(filename: str):
                         form_to_save[k] = v
                 json.dump(form_to_save, f, ensure_ascii=False)
                 print("save %s"%path_file)
+        else:
+            print("%s doesn't exist"%path_meta.parent)
 
         return  make_response(jsonify(sucess=True), status)
 
@@ -185,9 +187,13 @@ def index(index_name: str):
     #index_name = content.get('index_name', app.config['INDEX_NAME'])
     #index_name  = index_name if index_name else app.config['INDEX_NAME']
 
-    old_index = get_index_name(index_name)
-    new_index = replace_blue_green(old_index, index_name)
-    print(new_index)
+    if not exists(index_name): # init if no index in ES
+        old_index = index_name + '_green'
+        new_index = index_name + '_blue'
+    else:
+        old_index = get_index_name(index_name)
+        new_index = replace_blue_green(old_index, index_name)
+
     create_index(new_index,
                  app.config['USER_DATA'],
                  app.config['ES_DATA'],
@@ -202,7 +208,8 @@ def index(index_name: str):
                     app.config['USER_DATA'],
                     dst_path = app.config['DST_DIR'],
                     json_path = app.config['JSON_DIR'],
-                    meta_path = META_DIR)
+                    meta_path = META_DIR,
+                    sections=sections)
 
     # Switch index in alias
     put_alias(new_index, index_name)
@@ -247,6 +254,7 @@ def synonym(key:int):
         204: Delete
         200: Create
         201: Update
+        202: Row already saved
         500: Server abort
     """
     filename = request.args.get('filename', app.config['GLOSSARY_FILE'])
@@ -285,7 +293,14 @@ def synonym(key:int):
             else:
                 return abort(501)
 
-        if key in synonym_df['key'].tolist():
+        # test if entry exists
+        match_df = pd.Series(True, index=synonym_df.index)
+        for name in names:
+            match_df = match_df & (synonym_df[name] == body[name])
+        if match_df.any():
+            status = 202 # do nothing
+
+        elif key in synonym_df['key'].tolist():
             status = 200 # update
             # assign body value to dataframe
             for name in names:
@@ -314,55 +329,3 @@ def synonym(key:int):
     elif 'expression' in filename:
         synonym_file.write_text('\n'.join((synonym_df['expressionA']).tolist()))
         return make_response(synonym_df.to_json(orient='records'), status)
-
-@admin_bp.route("/expression/<key>", methods=["DELETE", "PUT"])
-def expression(key: str):
-    """ Add,replace or delete an expression in its file. If a creation, append
-        at the beginning.
-    Args:
-        key (int): The row number of the expression in the expression file
-    Returns: Usual HTTP status codes
-        204: Delete
-        200: Create
-        201: Update
-        500: Server abort
-    """
-    body = request.get_json(force=True)
-    expression_file = Path(app.config['USER_DATA']) / app.config['RAW_EXPRESSION_FILE']
-    if 'value' not in body[0] or 'value' not in body[1]:
-        print('Missing keys')
-        return abort(500)
-    if key != body[0]['value']:
-        return abort(501)
-
-    if expression_file.exists():
-        expression_df = pd.read_csv(expression_file, header=None, names=['value']);
-        expression_df['key'] = range(len(expression_df))
-        expression_df['key'] = expression_df['key'].astype(str)
-    else:
-        return abort(502)
-
-    if request.method == 'PUT':
-        if key in expression_df['key'].tolist():
-            status = 200 # update
-            expression_df.loc[expression_df['key'] == key, 'value'] = body[1]['value']
-        else:
-            status = 201 # create
-            expression_df = pd.concat([pd.DataFrame({'key': key, 'value': body[1]['value']},index=[0]),
-                                    expression_df], ignore_index=True)
-
-    elif request.method == 'DELETE':
-        if key in expression_df['key'].tolist():
-            status = 200
-            expression_df = expression_df[expression_df['key'] != key]
-        else:
-            status = 404
-    # Write synonym file
-    content = []
-    for _, row in expression_df.iterrows():
-        content += [row['value']]
-    expression_file.write_text('\n'.join(content))
-    expression_df['key'] = range(len(expression_df))
-    expression_df['key'] = expression_df['key'].astype(str)
-        #to_csv(glossary_file, sep=str('=>'),header=False, index=False, encoding='utf-8')
-    return make_response(expression_df.to_json(orient='records'), status)

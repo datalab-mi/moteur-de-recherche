@@ -5,3 +5,4 @@ tests/**/json
 tests/**/meta
 benchmark/**/json
 benchmark/**/meta
+benchmark/bld/data/QR_file.csv

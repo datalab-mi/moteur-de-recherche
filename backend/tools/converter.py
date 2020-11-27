@@ -33,8 +33,6 @@ def odt2json(path: str, sections: list = []) -> dict:
 
     sections = [{'key':normalize(x['key']), 'array':x['array']} for x in sections]
 
-    print('Sections are : ')
-    print(sections)
     # extract test from doc
     doc = load(path)
     L = [teletype.extractText(x) for x in doc.getElementsByType(text.P)]
@@ -58,7 +56,7 @@ def odt2json(path: str, sections: list = []) -> dict:
 
     # Remove empty or digit element
     L2 = [x for x in L2 if x and x != '' and not x.isdigit()]
-
+    #print(L2)
     data = {}
     section_content = []
     current_section = ''
@@ -70,14 +68,15 @@ def odt2json(path: str, sections: list = []) -> dict:
             x_match = re.match(reg_list, x)
             if x_match:
                 x = x_match.group(1)
-            section_content += [x]
+            if re.search('[a-zA-Z0-9]', x): # If there are letters
+                section_content += [x]
 
         if current_section in [x['key'] for x in sections] :
             is_array = [x['array'] for x in sections if x['key'] == current_section][0]
             if is_array:
                 data[current_section] = section_content
             else :
-                data[current_section] = ' ,'.join(section_content)
+                data[current_section] = ' '.join(section_content)
     #import pdb; pdb.set_trace()
 
     if '' in data:

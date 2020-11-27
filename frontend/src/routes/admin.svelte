@@ -18,7 +18,7 @@
 							placeholder: 'Rechercher une pièce jointe',
 							value: '',
 							innerHtml: '',
-							size: '5/6'
+							size: '4/6'
 						},
 						{
 							key: 'size',
@@ -77,8 +77,6 @@
 	<File baseDir={pjDir} {meta}/>
 
 </div>
-
-<hr>
 
 
 <style>

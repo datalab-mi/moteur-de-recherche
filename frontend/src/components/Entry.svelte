@@ -17,14 +17,19 @@
 
     export let cssClass = 'base'
 
-    let rows = 4
+    export let rows = 4
     let newValue = ""
     let keywordList = []
 
     let promiseListKeyword = new Promise(()=>{})
-
+    console.log(key)
+    console.log(type)
     if  (type === "keyword") {
-      promiseListKeyword = get(`api/common/keywords/${$index_name}/${key}`)
+      if (!readonly && metadata) {
+        promiseListKeyword = get(`api/common/keywords/${$index_name}/${key}`)
+      } else {
+        promiseListKeyword = [] // no need of promiseListKeyword
+      }
     }
 
     function onDelete(val){

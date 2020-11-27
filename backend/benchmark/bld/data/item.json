@@ -27,9 +27,8 @@
       "placeholder": "NA",
       "value": "",
       "innerHtml": "<b>Réponse :</b>",
-      "highlight": true,
-      "metadata": false,
-      "rows": 4
+      "highlight": false,
+      "metadata": false
     },
     {
       "key": "pieces jointes",

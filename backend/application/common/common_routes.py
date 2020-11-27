@@ -49,7 +49,13 @@ def get_file(path=''):
 
         return jsonify(files)
     else:
-        return make_response('', 404)
+        # try to infer the extention
+        for filename in dir.parent.glob(dir.stem + "*"):
+            return send_from_directory(app.config['USER_DATA'],
+                filename.relative_to(Path(app.config['USER_DATA'])),
+                as_attachment=True)
+
+        return make_response('%s not found'%dir.stem, 404)
 
 
 @common_bp.route('/search', methods=['POST'])
@@ -138,11 +144,12 @@ def get_logo(name='logo.svg'):
         file: Logo file
     """
     filename  = (Path(app.config['USER_DATA']) / app.config['LOGO'])
+    print(filename)
+
     if filename.is_file(): # return first found
         return send_from_directory(app.config['USER_DATA'], app.config['LOGO'], as_attachment=True)
     else:
         return make_response(str(Path(app.config['USER_DATA']) / name), 404)
-
 
 @common_bp.route("/keywords/<index_name>/<field>", methods=['GET'])
 def get_keywords(index_name: str, field: str):

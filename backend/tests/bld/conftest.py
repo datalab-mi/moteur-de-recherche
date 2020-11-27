@@ -6,7 +6,7 @@ from elasticsearch import Elasticsearch
 
 from application import create_app
 
-INDEX_NAME = 'iga'
+INDEX_NAME = 'bld'
 
 USER_DATA = 'tests/iga/data'
 filename = 'ignit_pnigitis.pdf'
@@ -26,10 +26,8 @@ def client(app):
 @pytest.fixture
 def search_data():
     return dict(index_name=INDEX_NAME,
-                content='foret',
-                author='GRANJEANT',
-                to_date='2017-06-06',
-                from_date='2015-06-06')
+                must=[{"multi_match": {"fields": ["titre", "question", "reponse"], "query": "moteur de recherche"}}],
+                highlight=["question","reponse","pieces jointes"])
 
 @pytest.fixture
 def es():

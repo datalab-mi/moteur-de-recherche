@@ -11,6 +11,9 @@ async function ReIndex() {
       $isReindex = false
 			return text;
 		} else {
+			var win = window.open("", "Error", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yestop="+(screen.height)+",left="+(screen.width));
+			win.document.body.innerHTML = text;
+
 			throw new Error(text);
 		}
 	}
@@ -42,7 +45,9 @@ async function ReIndex() {
 <!-- svelte-ignore empty-block -->
 {#await promise}
 {:catch error}
-  <p style="color: red">{error.message}</p>
+<p style="color:red">Error</p>
+<!-- <iframe srcdoc={error.message} height="300">
+</iframe> -->
 {/await}
 <style>
 #spinner {

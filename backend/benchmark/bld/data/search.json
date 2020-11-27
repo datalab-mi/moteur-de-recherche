@@ -1,0 +1,28 @@
+[
+  [
+    {
+    "bool": "must",
+    "query": {"multi_match": {"fields":["titre", "question","reponse"], "query":"$value"}},
+    "fields": ["titre", "question","reponse"],
+    "value": "",
+    "type": "search",
+    "placeholder": "Recherche par mots clefs",
+    "innerHtml": "",
+    "style": "w-5/6 p-2",
+    "highlight": true
+    }
+  ],
+  [
+    {
+    "bool": "filter",
+    "query": {"terms": {"mots cles": "$value"}},
+    "fields": "mots cles",
+    "value": [],
+    "type": "keyword",
+    "placeholder": "Recherche par tags",
+    "innerHtml": "",
+    "style": "w-5/6 p-2",
+    "highlight": false
+    }
+  ]
+]

@@ -96,7 +96,7 @@ def test_search():
     glossary_file = Path(USER_DATA) / GLOSSARY_FILE
     expression_file = Path(USER_DATA) / RAW_EXPRESSION_FILE
 
-    doc = 'création+de+la+DNUM.odt'
+    doc = 'création de la DNUM.odt'
     req = 'Depuis quand date la direction du Numérique?'
     must = [{"multi_match":{"fields":["question","reponse","titre","mots-cles"],"query":req}}]
     time.sleep(2)
@@ -126,7 +126,7 @@ def test_search():
 def test_get_unique_keywords():
     field = "mots cles"
     keyword_list = get_unique_keywords(INDEX_NAME, field)
-    assert keyword_list == ['algorithme', 'data', 'docker', 'innovation', 'organisation', 'python', 'transformation numérique']
+    assert keyword_list == ['algorithme', 'data', 'docker', 'innovation', 'organisation', 'python', 'transformation numerique']
 
 @pytest.mark.run(after='test_inject_documents')
 def test_keyword_search():
@@ -135,7 +135,7 @@ def test_keyword_search():
     glossary_file = Path(USER_DATA) / GLOSSARY_FILE
     expression_file = Path(USER_DATA) / RAW_EXPRESSION_FILE
 
-    doc = 'création+de+la+DNUM.odt'
+    doc = 'création de la DNUM.odt'
     req = ['innovation']
     must, should = [], []
     filter = [{"terms":{"mots cles":req}}]

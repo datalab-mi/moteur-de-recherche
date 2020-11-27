@@ -209,8 +209,11 @@ def test_blue_green():
     res_blue = search(must, [], [], INDEX_NAME, [])
     #print(hits, length_req, bande)
     time.sleep(2)
-    assert [hits['_id'] for hits in res_blue['hits']] == ['BF2014-08-13069+-+Plan+submersions+rapides.pdf',
-                                                    'BF2014-01-13041+Dépenses+de+contentieux.pdf']  , 'Found to result %s'%res_blue['hits'][0]['_id']
+    assert [hits['_id'] for hits in res_blue['hits']] == \
+         ['BF2014-08-13069 - Plan submersions rapides.pdf',
+         'BF2014-01-13041 Dépenses de contentieux.pdf',
+         'BF2015-09-14124 - Accueil ressortissants étrangers.pub.pdf'],\
+                            'Found to result %s'%res_blue['hits'][0]['_id']
     print([hits['_id'] for hits in res_blue['hits']])
 
     ####  Switch to new index #####

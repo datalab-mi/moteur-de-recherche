@@ -2,7 +2,7 @@
 """Backend scrpits to handle Elastic Search (ES) queries"""
 
 import elasticsearch
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, NotFoundError
 import os
 import base64
 import json
@@ -19,7 +19,8 @@ import pandas as pd
 from tools.converter import pdf2json, odt2json, save_json
 from tools.utils import empty_tree, _finditem
 import json
-
+import time
+import re
 
 
 #On établit une connection
@@ -205,11 +206,8 @@ def search(must: dict, should: dict, filter: dict, index_name: str,
         body, length_of_request = build_query(must, should, filter, index_name,
                     highlight,
                     glossary_file=glossary_file, expression_file=expression_file)
-
-        D = es.search(index = index_name,
-                      body = body,
-                      size = thresholds.get('d_threshold', int(1000)))
-
+        time.sleep(0.5)
+        D = es.search(index = index_name, body = body,size = thresholds.get('d_threshold', int(1000)),request_cache=False)
     else:
         length_of_request = None
         D = es.search(index = index_name,
@@ -218,7 +216,7 @@ def search(must: dict, should: dict, filter: dict, index_name: str,
                                 "match_all": {}
                             }
                         },
-                    size = int(1000)
+                    size = thresholds.get('d_threshold', int(1000))
                     )
         thresholds['r_threshold'] = 0
 
@@ -286,10 +284,12 @@ def get_index_name(alias_name: str):
             index_name = list(res.keys())[0]
         else:
             raise Exception
-    except elasticsearch.exceptions.NotFoundError:
+    except NotFoundError:
         # create alias pointing to the blue index.
         index_name = alias_name + '_blue'
         es.indices.put_alias(index=alias_name, name=index_name)
+    except Exception as err:
+        print('Catch unexpected error: ', err)
     return index_name
 
 def replace_blue_green(index_name: str, alias_name: str):
@@ -319,6 +319,10 @@ def delete_alias(index_name: str, alias_name: str):
 def get_alias(alias_name: str):
     return es.indices.get_alias(name=alias_name)
 
+def exists(index_name: str):
+    return es.indices.exists(index_name)
+
+
 def create_index(index_name: str,
             user_data: str,
             es_data: str,
@@ -336,6 +340,7 @@ def create_index(index_name: str,
         expression_file (str): Expression file name
         glossary_file (str): Acronym file name
     """
+    os.makedirs(es_data, exist_ok=True)
     synonym_file = os.path.join(es_data, 'synonym.txt')
     synonym_search_file = os.path.join(es_data, 'search_synonym.txt')
 
@@ -389,7 +394,7 @@ def create_index(index_name: str,
     map['settings']["analysis"]["filter"]["search_synonym"].update(
             {"synonyms_path" : os.path.join(es_data, synonym_search_file)})
 
-    print(map)
+    # print(map)
     with open(os.path.join(es_data, mapping_file), 'w') as outfile:
         json.dump(map, outfile)
 
@@ -464,8 +469,22 @@ def index_file(filename: str, index_name: str, user_data: str, dst_path: str,
         data = odt2json(str(path_document), sections)
     else:
         raise Exception("Format not supported")
-    #import pdb; pdb.set_trace()
 
+    # Clean fields specified in sections.json
+    for entry in sections:
+        if entry.get('clean',False):
+            for key in data :
+                if key == entry.get("field",None) :
+                    if type(data[key]) == list:
+                        y = []
+                        for x in data[key]:
+                            y += [" ".join(clean(x, index_name))]
+                        data[key] = y
+                    else:
+                        data[key] = clean(data[key], index_name)
+
+
+    #import pdb; pdb.set_trace()
     path_meta =  Path(user_data) / meta_path / (path_document.stem + '.json')
     path_json =  Path(user_data) / json_path / (path_document.stem + '.json')
 
@@ -473,7 +492,10 @@ def index_file(filename: str, index_name: str, user_data: str, dst_path: str,
         with open(path_meta, 'r' , encoding = 'utf-8') as json_file:
             meta = json.load(json_file)
             data.update(meta)
-
+    # clean date field
+    if "date" in data:
+        data["date"] = re.sub(r'[^\d\/]','',data["date"]) # remove all caractere ! / or digit
+        data["date"] = data["date"].replace("//",'/')
     save_json(data, path_json)
 
     res = es.index(index = index_name, body=data , id = path_document.name)
@@ -508,7 +530,8 @@ def get_unique_keywords(index_name: str, field: str) -> list:
           "size": 0,
           "aggs": {
             field: {
-              "terms": { "field": field }
+              "terms": { "field": field,
+                        "size": int(1e4) }
             }
           }
         }

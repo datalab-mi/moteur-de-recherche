@@ -37,28 +37,18 @@ def test_healthcheck(client, app):
     print(res)
     assert res.status_code == 200,res
 
+@pytest.mark.run(after='test_search')
 def test_reindex(client, app):
-    # Clear
-    for i in range(3): # to be sure alias and indexes are removed
-        es.indices.delete(index=INDEX_NAME, ignore=[400, 404])
-        es.indices.delete(index=INDEX_NAME + '_green', ignore=[400, 404])
-        es.indices.delete(index=INDEX_NAME + '_blue', ignore=[400, 404])
-        es.indices.delete_alias(index=[INDEX_NAME + '_blue', INDEX_NAME + '_green'],
-            name=INDEX_NAME, ignore=[400, 404])
 
-    create_index(INDEX_NAME + '_blue', USER_DATA, ES_DATA, MAPPING_FILE, GLOSSARY_FILE, RAW_EXPRESSION_FILE )
-    put_alias(INDEX_NAME + '_blue', INDEX_NAME)
-
-    for i in range(3):
-        es.indices.delete_alias(index=[new_index],
-                name=INDEX_NAME, ignore=[400, 404])
+    old_index = get_index_name(INDEX_NAME)
+    new_index = replace_blue_green(old_index, INDEX_NAME)
 
     with app.test_client() as c:
         resp = c.get(
             '/admin/%s/reindex'%INDEX_NAME)
 
     assert resp.status_code == 200, 'Status Code : %s'%resp.status_code
-    assert resp.json['color'] == INDEX_NAME + '_green'
+    assert resp.json['color'] == new_index
 
 def test_search(client, app, search_data):
     with app.test_client() as c:
@@ -66,16 +56,15 @@ def test_search(client, app, search_data):
             '/common/search',
             content_type='application/json',
             data = json.dumps(search_data))
+    time.sleep(2)
 
     assert resp.status_code == 200, 'Status Code : %s'%resp.status_code
 
-    res= json.loads(
-            resp.get_data(as_text=False).decode('utf-8'))
+    res = json.loads(resp.get_data(as_text=False).decode('utf-8'))
 
     assert len(res)>0, "No document found"
     #import pdb; pdb.set_trace()
-    time.sleep(2)
-    assert [hits['_id'] for hits in res['hits']] == ['BF2016-08-16010-dfci.pdf'], 'Find %s'%[hits['_id'] for hits in res['hits']]
+    assert [hits['_id'] for hits in res['hits']] == ['moteur de recherche.odt'], 'Find %s'%[hits['_id'] for hits in res['hits']]
 
 def test_upload_file(client, app, form_to_upload, file_name):
     # Add document
@@ -198,11 +187,13 @@ def test_get_files(client, app):
         req = c.get(
             '/common/files/{path}'.format(path=path))
         resp = json.loads(req.get_data())
-        assert doc_name in resp['titre'], resp
+        #import pdb; pdb.set_trace()
+        assert doc_name in resp['titre'].lower(), resp
 
+@pytest.mark.run(after='test_reindex')
 def test_threshold(client, app):
     # Add display threshold to threshold.json
-    thresholds = {"d_threshold":0,"r_threshold":1}
+    thresholds = {"d_threshold":5,"r_threshold":5}
     with app.test_client() as c:
         resp = c.put('/admin/threshold',
             data = json.dumps(thresholds))

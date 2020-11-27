@@ -10,3 +10,4 @@ tika==1.19
 xlrd
 odfpy==1.4.0
 Unidecode==1.1.1
+sentence-transformers==0.3.8

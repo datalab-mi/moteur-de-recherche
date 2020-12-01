@@ -1,16 +1,18 @@
-## Presentation du folder Benchmark
-Même organisation que le folder backend/test: 2 dossiers (bld et iga à terme), fichier .env-bld, même type de données dans bld/data + QR_file.ods
-- QR_file.ods: base de test (question/ réponse) en csv ou ods, **à remplacer par le fichier envoyé sur le tchap**
+## Présentation du folder benchmark
+Même organisation que le folder backend/tests, chaque dossier contient les données applicatives, les configurations et le fichier d'environment .env.
+
+- Un fichier questions/réponses pour l'évaluation
 - utils.py: fonctions utilisés dans les scripts
-- bm25.py: script d'évaluation des metrics selon la recherche "classique"
-- Testé dans backend/tests/benchmark/test_bm25.py
+- bm25.py: script d'évaluation des metrics selon la recherche BM25
+- sbert.py: script d'évaluation des metrics avec SBERT
+
+Testé dans backend/tests/benchmark/test_bm25.py
 
 # Installation de l'environnement d'execution
 Modifier le fichier artifact:
 ```export INDEX_NAME = nom de l'index à créer, ex: bld-benchmarck
-export DATA_PATH = ${APP_PATH}/backend/benchmark/bld/data
-export ENV_FILE = ${APP_PATH}/backend/benchmark/bld/.env-bld
-export PORT = 81
+export DATA_PATH = chemin/vers/data (ex. ${APP_PATH}/backend/benchmark/bld/data)
+export ENV_FILE = chemin/vers/.env (ex. ${APP_PATH}/backend/benchmark/bld/.env-bld)
 export DC_UP_ARGS=
 ```
 
@@ -19,7 +21,7 @@ Rentrer dans le container : `make backend-exec`
 
 # Execution de bm25.py
 Avoir de l'aide : `python -m benchmark.bm25 --help`
-Le script s'execute de cette façon: `python -m benchmark.bm25 -qr bld/QR_file.ods -env bld/.env-bld -m dcg`
+Le script s'execute de cette façon: `python -m benchmark.bm25 -base-path /data/user -qr QR_file_cleaned.csv -env .env -m dcg -index`
 Arguments:
 - -base-path: (optionel) Si précisé, le répertoire de base, sinon le répertoire du script lancé
 - -qr: chemin de la base de test par rapport au base-path

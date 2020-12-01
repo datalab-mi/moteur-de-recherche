@@ -17,7 +17,8 @@ def test_main():
             base_path=env_path, # optional, take current
             qr_path="QR_file.ods",
             dotenv_path=".env-bld",
-            metric='dcg')
+            metric='dcg',
+            index=True)
     result = main(args)
 
     assert result['metric_score'] == 1

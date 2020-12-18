@@ -271,7 +271,6 @@ frontend-download-swift: chmod
 	@echo "Download $(FILE_FRONTEND_DIST_APP_VERSION) from SWIFT to ${APP}-build"
 	swift/download.sh ${BUCKET_NAME} ${APP}-build/$(FILE_FRONTEND_DIST_APP_VERSION) 'curl'
 
-
 download: chmod
 	swift/download.sh $(BUCKET_NAME) $(SRC) 'curl'
 upload: chmod

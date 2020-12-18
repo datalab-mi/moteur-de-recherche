@@ -12,6 +12,8 @@ parser.add_argument('-dst-file', type=str,
     help='file converted')
 parser.add_argument('-filename', type=str,
     help='type of filename')
+parser.add_argument('-token', type=str,
+    help='JWT token')
 
 
 """
@@ -54,10 +56,11 @@ def main(args):
         print(expressionA, expressionB)
         body = {"expressionA":expressionA,"expressionB":expressionB}
         req = requests.put(
-            'http://localhost/api/admin/synonym/{key}?filename={filename}'.format(
+            'http://localhost:5000/admin/synonym/{key}?filename={filename}'.format(
             key=0,
             filename=args.filename),
-            data = json.dumps(body)
+            data = json.dumps(body),
+            headers={'Authorization': 'JWT %s'%args.token}
         )
         print(req.url)
         print(req.text)

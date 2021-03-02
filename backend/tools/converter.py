@@ -4,6 +4,7 @@ import os
 import json, collections
 from odf import text, teletype
 from odf.opendocument import load
+from odf.odf2xhtml import ODF2XHTML
 from tika import parser
 from os import environ
 import re
@@ -91,6 +92,19 @@ def odt2json(path: str, sections: list = []) -> dict:
         data.pop('')
     return data
 
+def odt2html(path: str) -> str:
+    """ Read odt file and convert to html without css formating
+    """
+    generatecss = False
+    embedable = True
+    odhandler = ODF2XHTML(generatecss, embedable)
+    odhandler.add_style_file("mystyle.css")
+    #{odhandler.load(path)
+    #import pdb; pdb.set_trace()
+    result = odhandler.odf2xhtml(path)
+    result = result.replace('\n','')
+    result = result.replace(u'\xa0', u' ')
+    return result
 
 def pdf2json(path: str, sections: list = []) -> dict:
     """ Read thanks to tika docker a pdf document

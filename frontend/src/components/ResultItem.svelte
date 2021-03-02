@@ -25,8 +25,9 @@
 	let file;
 	$: file = { name: filename }
 
-	let url;
+	let url ;
 	$: url = `/api/user/files/${$userData.dstDir}/${filename}`
+
 	//$: url = `/web/viewer.html?file=%2Fuser%2Fpdf%2F${filename}`
 	let meta;
 	/**

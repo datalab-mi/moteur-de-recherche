@@ -9,8 +9,8 @@
 	let threshold;
 	let resultMessage;
 	let message;
-	let canBeChange;
-	$: canBeChange =  $itemJson.inputs.some((entry) => entry.metadata)
+	let canBeModified;
+	$: canBeModified =  $itemJson.inputs.some((entry) => entry.metadata)
 
 	$: message = $envJson.message ||  "Le document que vous recherchez a peu de chance de se trouver en dessous de cette bande. Veuillez contacter l'<b><a href='mailto:{$envJson.contact}?subject=Demande de consultation'> administrateur ✉️</a></b>."
 	//let message = ($envJson.message === undefined) ? dafaultMessage : $envJson.message
@@ -71,7 +71,7 @@
 					<p>{@html message}</p>
 				</section>
 			{:else}
-				<ResultItem  {... ( ({ _id, _source, _score, highlight }) => ({ _id, _source, _score, highlight, canBeChange }) )(item) } />
+				<ResultItem  {... ( ({ _id, _source, _score, highlight }) => ({ _id, _source, _score, highlight, canBeModified }) )(item) } />
 			{/if}
 		{/each}
 		</div>

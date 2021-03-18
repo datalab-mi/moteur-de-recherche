@@ -49,7 +49,7 @@
       "value": "",
       "innerHtml": "<b>Pièces jointes :</b>",
       "highlight": true,
-      "metadata": true
+      "metadata": false
     },
     {
       "key": "mots cles",
@@ -58,7 +58,7 @@
       "value": [],
       "innerHtml": "<b>Mots clés :</b>",
       "highlight": false,
-      "metadata": true,
+      "metadata": false,
       "color": "#000066"
     }
   ]
